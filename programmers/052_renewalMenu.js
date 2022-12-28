@@ -1,54 +1,50 @@
 function solution(orders, course) {
   const answer = [];
-  const alphabets = Array.from(
-    new Set(orders.map((order) => order.split("")).flat())
-  );
-  const picked = Array(alphabets.length).fill(0);
   const map = new Map();
+  const menuMap = new Map();
+  const visited = Array(11);
 
-  function comb(start, step, courseCount) {
-    if (step === courseCount) {
-      const alphabet = picked.filter((v) => v).join("");
-      const included = [];
+  function combination(start, count, course, order) {
+    if (count === course) {
+      const menus = visited
+        .filter((v) => v)
+        .sort()
+        .join("");
+      const count = map.has(menus) ? map.get(menus) + 1 : 1;
 
-      orders.forEach((order) => {
-        let flag = true;
-        for (let i = 0; i < courseCount; ++i) {
-          if (flag === false) break;
-          flag = order.includes(alphabet[i]);
-        }
-
-        flag && included.push(order);
-      });
-
-      const key = included.length;
-      key >= 2 &&
-        map.set(key, map.has(key) ? [...map.get(key), alphabet] : [alphabet]);
+      map.set(menus, count);
       return;
     }
 
-    for (let i = start; i < alphabets.length; ++i) {
-      if (picked[i]) continue;
+    for (let i = start; i < order.length; ++i) {
+      if (visited[i]) continue;
 
-      picked[i] = alphabets[i];
-      comb(i, step + 1, courseCount);
-      picked[i] = 0;
+      visited[i] = order[i];
+      combination(i, count + 1, course, order);
+      visited[i] = 0;
     }
   }
 
-  course.forEach((c) => comb(0, 0, c));
+  orders.forEach((order) => {
+    visited.fill(0);
+    course.forEach((c) => {
+      combination(0, 0, c, order);
+    });
+  });
 
-  for (const value of map.values()) {
-    const len = value[value.length - 1].length;
-    answer.push(value.filter((v) => v.length === len));
+  for (const [menu, orderCount] of map.entries()) {
+    if (orderCount === 1) continue;
+    const menus = menuMap.has(menu.length)
+      ? [...menuMap.get(menu.length), [menu, orderCount]]
+      : [[menu, orderCount]];
+    menuMap.set(menu.length, menus);
   }
 
-  const sortedAlphabet = answer.flat().map((ans) =>
-    ans
-      .split("")
-      .sort((a, b) => a.localeCompare(b))
-      .join("")
-  );
+  for (const value of menuMap.values()) {
+    const maxLen = value.sort((a, b) => b[1] - a[1])[0][1];
+    const menu = value.filter((v) => v[1] === maxLen).map((v) => v[0]);
+    answer.push(...menu);
+  }
 
-  return sortedAlphabet.sort();
+  return answer.sort();
 }
