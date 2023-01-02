@@ -1,25 +1,45 @@
-function solution(n, wires) {
-  let answer = Number.MAX_SAFE_INTEGER;
-  const chk = Array(wires.length).fill(false);
-  let count = 1;
-  let cutted = -1;
-
-  function bfs(basis) {
-    for (let i = 0; i < wires.length; ++i) {
-      if (i === cutted || chk[i] || wires[i][0] !== basis) continue;
-      count++;
-      chk[i] = true;
-      bfs(wires[i][1]);
-      chk[i] = false;
-    }
-  }
-
+function connectWire(n, wires) {
+  const w = Array.from(new Array(n), () => new Array());
   for (let i = 0; i < wires.length; ++i) {
-    count = 1;
-    cutted = i;
-    bfs(1);
-    answer = Math.min(answer, Math.abs(2 * count - n));
+      w[wires[i][0] - 1].push(wires[i][1]);
+      w[wires[i][1] - 1].push(wires[i][0]);
   }
+  
+  return w;
+}
 
+function solution(n, wires) {
+  let answer = 100;
+  const w = connectWire(n, wires);
+  
+  function countTower(root, cutted) {
+      let count = 0;
+      const q = [root];
+      const visited = [];
+      visited[root] = true;
+      
+      while (q.length) {
+          const cur = q.pop() - 1;
+          
+          w[cur].forEach((next) => {
+              if (next === cutted || visited[next]) return;
+              
+              visited[next] = true;
+              q.push(next);
+          });
+          
+          count++;
+      }
+      
+      return count;
+  }
+  
+  wires.forEach((wire) => {
+      const [a, b] = wire;
+      const cnt = countTower(a, b);
+      const diff = Math.abs(cnt - (n - cnt));
+      answer = Math.min(answer, diff);
+  });
+  
   return answer;
 }
