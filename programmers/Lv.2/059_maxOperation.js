@@ -1,45 +1,36 @@
 function solution(expression) {
-  let answer = 0;
+  let answer = Number.MIN_SAFE_INTEGER;
 
-  const operation = [...new Set(expression.match(/[*+-]/g))];
-  const checked = Array(operation.length).fill("");
-  const convertNumber = (strArr) =>
-    strArr.map((arr) => arr.match(/(-?\d+)/g).map((str) => +str));
-  const getMatchOperator = (exp, op) => {
-    if (op === "-") return exp.match(/(\d+-\d+)/g);
-    if (op === "+") return exp.match(/(\d+\+\d+)/g);
-    if (op === "*") return exp.match(/(\d+\*-?\d+)/g);
+  const calculate = (a, b, op) => {
+    if (op === "*") return a * b;
+    if (op === "+") return a + b;
+    if (op === "-") return a - b;
   };
 
-  (function combination(step) {
-    if (step === operation.length) {
-      let strExpression = expression;
+  const combinations = [
+    ["*", "-", "+"],
+    ["*", "+", "-"],
+    ["+", "*", "-"],
+    ["+", "-", "*"],
+    ["-", "+", "*"],
+    ["-", "*", "+"],
+  ];
 
-      checked.forEach((operation) => {
-        const matchedExpr = getMatchOperator(strExpression, operation);
-        const numbers = convertNumber(matchedExpr).map(([n1, n2]) =>
-          operation === "*" ? n1 * n2 : n1 + n2
-        );
+  combinations.forEach((ops) => {
+    const operands = expression.match(/\d+/g).map(Number);
+    const operators = expression.match(/[\+\*\-]/g);
 
-        matchedExpr.forEach((str, i) => {
-          strExpression = strExpression.replace(str, numbers[i]);
-          strExpression = strExpression.replaceAll("--", "+");
-          strExpression = strExpression.replace(/^(--)/, "");
-        });
-      });
-
-      answer = Math.max(Math.abs(eval(strExpression)), answer);
-      return;
-    }
-
-    for (let i = 0; i < operation.length; ++i) {
-      if (checked[i]) continue;
-
-      checked[i] = operation[step];
-      combination(step + 1);
-      checked[i] = "";
-    }
-  })(0, 0);
+    ops.forEach((op) => {
+      let idx = operators.indexOf(op);
+      while (idx !== -1) {
+        operands[idx] = calculate(operands[idx], operands[idx + 1], op);
+        operands.splice(idx + 1, 1);
+        operators.splice(idx, 1);
+        idx = operators.indexOf(op);
+      }
+    });
+    answer = Math.max(Math.abs(operands[0]), answer);
+  });
 
   return answer;
 }
