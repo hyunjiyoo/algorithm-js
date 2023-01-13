@@ -1,41 +1,37 @@
-function isPair(str) {
-  const pairBracket = /(\(\))/g;
-
-  for (let i = str.length; i > 0; i -= 2) {
-    str = str.replace(pairBracket, "");
+function isPair(s) {
+  for (let i = s.length; i > 0; i -= 2) {
+    s = s.replace(/\(\)/g, "");
   }
 
-  return str === "";
+  return s === "";
 }
 
-function convertPairString(str) {
-  if (isPair(str)) return str;
+function getBalancedString(str) {
+  let left = 0;
+  let right = 0;
+  let i = 0;
+  for (; i < str.length; ++i) {
+    if (str[i] === "(") ++left;
+    if (str[i] === ")") ++right;
 
-  const updatedStr = str
-    .slice(1, str.length - 1)
-    .split("")
-    .map((s) => (s === ")" ? "(" : ")"))
-    .join("");
+    if (left === right) break;
+  }
 
-  return "(" + convertPairString(updatedStr) + ")";
+  return { u: str.slice(0, i + 1), v: str.slice(i + 1) };
 }
 
 function solution(p) {
-  let answer = "";
+  if (p === "") return "";
 
-  let left = 0;
-  let right = 0;
-  let start = 0;
-  for (let i = 0; i < p.length; ++i) {
-    left += p[i] === "(";
-    right += p[i] === ")";
+  const { u, v } = getBalancedString(p);
 
-    if (left === right) {
-      answer += convertPairString(p.slice(start, i + 1));
-      start = i + 1;
-      left = right = 0;
-    }
-  }
+  if (isPair(u)) return u + solution(v);
 
-  return answer;
+  const slicedReverseU = p
+    .slice(1, u.length - 1)
+    .split("")
+    .map((s) => (s === "(" ? ")" : "("))
+    .join("");
+
+  return "(" + solution(v) + ")" + slicedReverseU;
 }
