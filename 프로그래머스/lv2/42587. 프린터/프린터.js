@@ -1,16 +1,16 @@
 function solution(priorities, location) {
     let answer = 0;
-    let priorityList = priorities.map((p, i) => ({ priority: p, location: i }));
+    let queue = priorities.map((p, i) => ({ priority: p, location: i }));
     
     while (true) {
-        if (priorityList.length === 0)
+        if (queue.length === 0)
             break;
         
-        const curr = priorityList.shift();
-        const found = priorityList.find(({ priority }) => priority > curr.priority);
+        const curr = queue.shift();
+        const found = queue.find(({ priority }) => priority > curr.priority);
         
         if (found) {
-            priorityList = [...priorityList, curr];
+            queue = [...queue, curr];
         } else {
             answer++;
             if (location === curr.location)
