@@ -1,27 +1,13 @@
-function sortByKey(map) {
-    for (let key in map) {
-        map[key].sort((a, b) => a - b);       
-    }
-    
-    return map;
-}
-
-// 조합 만드는 함수
-function combination(applicant, score, map, step) {
-    // key는 만들수 잇는 문자열
+function combination(applicant, score, applicants, step) {
     const key = applicant.join('');
 
-    if (map[key]) {
-        map[key].push(score);
-    } else {
-        map[key] = [score];
-    }
+    !applicants[key] && (applicants[key] = []);    
+    applicants[key].push(score);
     
     for (let i = step; i < 4; ++i) {
         const combiArr = [...applicant];
-        // const combiArr = applicant.slice();
         combiArr[i] = '-';
-        combination(combiArr, score, map, i + 1);
+        combination(combiArr, score, applicants, i + 1);
     }
 }
 
@@ -43,22 +29,31 @@ function binarySearch(arr, score) {
     return arr.length - left;
 }
 
-function solution(infos, query) {
-    const map = {};    
-    
+function getApplicants(infos, map) {    
     infos.forEach((info) => {
         const applicant = info.split(' ');
         const score = applicant.pop();
         combination(applicant, score, map, 0);
     });
+
+    return map;
+}
+
+function sortByScore(applicants) {
+    for (const score in applicants)
+        applicants[score].sort((a, b) => a - b);       
     
-    sortByKey(map);
-    
+    return applicants;
+}
+
+function solution(infos, query) {
+    const applicants = sortByScore(getApplicants(infos, {}));   
+
     return query.map((q) => {
         let queryString = q.replaceAll(/ and /g, '').split(' '); 
         const queryScore = queryString.pop()*1;
         queryString = queryString.join('');
         
-        return binarySearch(map[queryString], queryScore);
+        return binarySearch(applicants[queryString], queryScore);
     });
 }
