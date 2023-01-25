@@ -51,8 +51,5 @@ function solution(relation) {
         combination(0, i);
     }
             
-    console.log('unique', unique);
-    
-    
     return unique.size;
 }
