@@ -1,5 +1,3 @@
-
-
 function solution(n, computers) {
     let answer = 0;
     const visited = Array(n).fill(false);
