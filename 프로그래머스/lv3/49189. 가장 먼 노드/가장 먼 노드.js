@@ -9,14 +9,12 @@ function solution(n, edge) {
         const lev = level[target] + 1;
         
         edge.forEach(([e1, e2]) => {
-            
             if (e1 === target && !visited[e2]) {
                 visited[e2] = true;
                 queue.push(e2);
                 level[e2] = lev;
                 return;
-            }
-            
+            } 
             if (e2 === target && !visited[e1]) {
                 visited[e1] = true;
                 queue.push(e1);
