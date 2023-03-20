@@ -6,10 +6,11 @@ function solution(n, s) {
     const result = Array(n).fill(num);
     let remain = s % n;
     
+    let j = n - 1;
     while (remain > 0) {
-        result[remain]++;
+        result[j--]++;
         remain--;
     }
     
-    return result.sort((a,b) => a-b);
+    return result;
 }
